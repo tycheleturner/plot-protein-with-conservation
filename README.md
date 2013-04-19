@@ -36,4 +36,4 @@ R --slave --vanilla < plotProteinWithConservation.R mutationFile proteinArchitec
 
 Example:
 
-R --slave --vanilla < scripts/plotProteinWithConservation.R testFiles/psen1_mutation_file.txt testFiles/psen1_architecture_file.txt testFiles/psen1_post_translation_file.txt testFiles/muscle-I20130227-165316-0600-58424624-pg.fasta 4 Test
+R --slave --vanilla < plotProteinWithConservation.R psen1_mutation_file.txt psen1_architecture_file.txt psen1_post_translation_file.txt muscle-I20130227-165316-0600-58424624-pg.fasta 4 Test
