@@ -3,8 +3,9 @@ plot-protein-with-conservation
 
 Plot Protein: Visualization of Mutations with Conservation
 
-
 Author: Tychele N. Turner, Laboratory of Aravinda Chakravarti, Ph.D.
+
+Licenses: GNU General Public License version 3.0 (GPLv3), MIT License
 
 Short Description: Protein Plotting Script with Conservation
 
