@@ -110,7 +110,8 @@ for(i in 1:length(c)){
 score <- rep(0, nrow(a))
 for(i in 1:length(tab)){
 	for(j in 1:length(tab[[i]])){
-		if((names(tab[[i]][j])) == a[,5][i])
+#		if((names(tab[[i]][j])) == a[,5][i])
+		if((names(tab[[i]][j])) == a[i,][as.numeric(referenceSequencePositionInFile)])
 		score[i] <- tab[[i]][j]
 	}
 }
