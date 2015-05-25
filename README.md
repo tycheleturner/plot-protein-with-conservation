@@ -11,7 +11,9 @@ Short Description: Protein Plotting Script with Conservation
 
 Programming Language: R
 
-Readme Date: 06/17/2013
+Version: 2.0.0
+
+Readme Date: 05/25/2015
 
 Description: This script takes mutation information at the protein level and plots out the mutation above the schematic of the protein. It also plots the domains. This version can also add a track for conservation. If you want to use the conservation track the seqinr package will need to be installed in your R instance: install.packages("seqinr") There are now 2 implementations of this script controlled by the additionalOptions argument. If user specifies yes the other options must be filled out as well. See usage for no (Usage If Without Extra Options) and yes (Usage With Extra Options) answers to the additionalOptions argument.
 
@@ -30,18 +32,10 @@ Required files:
 *Alignment file: This is an aligned multiple sequence alignment fasta file such as that produced by MUSCLE (http://www.ebi.ac.uk/Tools/msa/muscle/). 
 
 
-Usage:
+Basic Usage:
+==================================================
+Rscript plotProteinWithConservation.R -m psen1_mutation_file.txt -a psen1_architecture_file.txt -p psen1_post_translation_file.txt -f muscle-I20130227-165316-0600-58424624-pg.fasta -r 4
 
-*Without Extra Options:
-R --slave --vanilla < plotProteinWithConservation.R mutationFile proteinArchitectureFile postTranslationalModificationFile alignmentFile referenceSequencePositionInFile nameOfYourQuery tickSize additionalOptions
-
-Example for Usage Without Extra Options:
-R --slave --vanilla < plotProteinWithConservation.R psen1_mutation_file.txt psen1_architecture_file.txt psen1_post_translation_file.txt muscle-I20130227-165316-0600-58424624-pg.fasta 4 Test 20 no
-
----------------------
-
-*With Extra Options: (Note for the zoomIn feature: if you say no then also specify the zoomStart and zoomEnd as 0 for each)
-R --slave --vanilla < plotProteinWithConservation.R mutationFile proteinArchitectureFile postTranslationalModificationFile alignmentFile referenceSequencePositionInFile nameOfYourQuery tickSize additionalOptions showLabels showConservationScore showReferenceSequence showGridlinesAtTicks zoomIn zoomStart zoomEnd wantSecondMutationFileForPlot secondMutationFileForPlot nameOfYourSecondQuery
-
-Example for Usage With Extra Options:
-R --slave --vanilla < plotProteinWithConservation.R psen1_mutation_file.txt psen1_architecture_file.txt psen1_post_translation_file.txt muscle-I20130227-165316-0600-58424624-pg.fasta 4 Test 2 yes yes yes yes yes yes 110 140 yes psen1_mutation_file.txt Duplicate
+Advanced usage:
+==================================================
+Rscript plotProteinWithConservation.R -m psen1_mutation_file.txt -a psen1_architecture_file.txt -p psen1_post_translation_file.txt -f muscle-I20130227-165316-0600-58424624-pg.fasta -r 4 -n Disease -t 25 -v yes -s yes -d yes -e yes -j yes -z yes -b 50 -c 100 -q yes -u psen1_mutation_file.txt -y Disease2
