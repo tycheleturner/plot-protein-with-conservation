@@ -3,7 +3,7 @@
 #Laboratory of Aravinda Chakravarti, Ph.D.
 #Protein Plotting Script with Conservation
 #Programming Language: R
-#Updated 06/14/2013
+#Updated 05/25/2015
 
 #Description: This script takes mutation information at the protein level and plots out the mutation above the schematic of the protein. It also plots the domains. This version can also add a track for conservation. If you want to use the conservation track the seqinr package will need to be installed in your R instance: install.packages("seqinr"). There are now 2 implementations of this script controlled by the additionalOptions argument. If user specifies yes the other options must be filled out as well. See usage for no (Usage If Without Extra Options) and yes (Usage With Extra Options) answers to the additionalOptions argument.
 
@@ -11,51 +11,61 @@
 
 #Package requirements: To use the conservation track the seqinr package will need to be installed in your R instance: install.packages("seqinr")
 
-#Required files:
-##Mutation file: tab-delimited file containing 5 columns (ProteinId, GeneName, ProteinPositionOfMutation, ReferenceAminoAcid, AlternateAminoAcid) NO HEADER FOR NEEDED FOR THIS FILE
-##Protein architecture file: tab-delimited file containing 3 columns (architecture_name, start_site, end_site). This file NEEDS the header and it is the same as what was previously written. This information can be downloaded from the HPRD (http://hprd.org/). Although the most recent files are quite old so looking in the web browser you can get much more up to date information.
-##Post-translational modification file: This is a tab-delimited file with only one column and that is the site. This file NEEDS a header and is as previously written.
-##Alignment file: This is an aligned multiple sequence alignment fasta file such as that produced by MUSCLE (http://www.ebi.ac.uk/Tools/msa/muscle/). 
+#Usage
+##Basic
+###Rscript plotProteinWithConservation.R -m psen1_mutation_file.txt -a psen1_architecture_file.txt -p psen1_post_translation_file.txt -f muscle-I20130227-165316-0600-58424624-pg.fasta -r 4
 
-#Usage If Without Extra Options:
-## R --slave --vanilla < plotProteinWithConservation.R mutationFile proteinArchitectureFile postTranslationalModificationFile alignmentFile referenceSequencePositionInFile nameOfYourQuery tickSize additionalOptions
+##Advanced
+###Rscript plotProteinWithConservation.R -m psen1_mutation_file.txt -a psen1_architecture_file.txt -p psen1_post_translation_file.txt -f muscle-I20130227-165316-0600-58424624-pg.fasta -r 4 -n Disease -t 25 -v yes -s yes -d yes -e yes -j yes -z yes -b 50 -c 100 -q yes -u psen1_mutation_file.txt -y Disease2
 
-#Example for usage without extra options:
-## R --slave --vanilla < plotProteinWithConservation.R psen1_mutation_file.txt psen1_architecture_file.txt psen1_post_translation_file.txt muscle-I20130227-165316-0600-58424624-pg.fasta 4 Test 20 no
+#will have to run the install for optparse if never installed before
+#install.packages("optparse")
 
-#Usage With Extra Options:
-## R --slave --vanilla < plotProteinWithConservation.R mutationFile proteinArchitectureFile postTranslationalModificationFile alignmentFile referenceSequencePositionInFile nameOfYourQuery tickSize additionalOptions showLabels showConservationScore showReferenceSequence showGridlinesAtTicks zoomIn zoomStart zoomEnd wantSecondMutationFileForPlot secondMutationFileForPlot nameOfYourSecondQuery
+library("optparse")
 
-#Example for usage with extra options:
-## R --slave --vanilla < plotProteinWithConservation.R psen1_mutation_file.txt psen1_architecture_file.txt psen1_post_translation_file.txt muscle-I20130227-165316-0600-58424624-pg.fasta 4 Test 2 yes yes yes yes yes yes 110 140 yes psen1_mutation_file.txt Duplicate
+option_list <- list(
+    make_option(c('-m', '--mutations'), action='store', type='character', default='mutationFile.txt', help='This is the mutation file. It should be a tab-delimited file containing 5 columns (ProteinId, GeneName, ProteinPositionOfMutation, ReferenceAminoAcid, AlternateAminoAcid) NO HEADER FOR NEEDED FOR THIS FILE. (REQUIRED)'),
+    make_option(c('-a', '--architecture'), action='store', type='character', default='architectureFile.txt', help='This is the protein architecture file. It should be a tab-delimited file containing 3 columns (architecture_name, start_site, end_site). This file NEEDS the header and it is the same as what was previously written. This information can be downloaded from the HPRD (http://hprd.org/). Although the most recent files are quite old so looking in the web browser you can get much more up to date information. (REQUIRED)'),
+    make_option(c('-p', '--posttranslational'), action='store', type='character', default='posttranslationalFile.txt', help='This is the protein post-translational modification file. This is a tab-delimited file with only one column and that is the site. This file NEEDS a header and is as previously written (site). (REQUIRED)'),
+    make_option(c('-f', '--fastaalignmentfile'), action='store', type='character', default='test.fasta', help='This is an aligned multiple sequence alignment fasta file such as that produced by MUSCLE (http://www.ebi.ac.uk/Tools/msa/muscle/). (REQUIRED)'),
+    make_option(c('-r', '--referencesequenceposition'), action='store', type='numeric', default=1, help='Reference sequence position in the fasta alignment file (REQUIRED)'),
+    make_option(c('-n', '--name'), action='store', type='character', default='Test', help='Name of your query. Default is Test'),
+    make_option(c('-t', '--ticksize'), action='store', type='numeric', default=10, help='Size of ticks on x-axis. Default is 10'),
+    make_option(c('-v', '--advancedoptions'), action='store', type='character', default='no', help='Whether or not to look at advanced options including showing labels above mutations, showing actual conservation score, showing sequence of user-specified reference, showing full gridlines at each tick mark, zooming in to different parts of the plot, zoom starts, zoom ends, and showing a second mutation set. Default is no'),
+    make_option(c('-s', '--showlabels'), action='store', type='character', default='no', help='Option to show labels. Default is no'),
+    make_option(c('-d', '--showconservationscore'), action='store', type='character', default='no', help='Option to show conservation score. Default is no'),
+    make_option(c('-e', '--showreferencesequence'), action='store', type='character', default='no', help='Option to show reference sequence of user-defined reference. Default is no'),
+    make_option(c('-j', '--showgridlines'), action='store', type='character', default='no', help='Option to show gridlines at each tick. Default is no'),
+    make_option(c('-z', '--zoom'), action='store', type='character', default='no', help='Option to zoom in. Default is no'),
+    make_option(c('-b', '--zoomstart'), action='store', type='numeric', default=1, help='Starting number for zoom in. Use if zoom option is set to yes. Default is 1'),
+    make_option(c('-c', '--zoomend'), action='store', type='numeric', default=10, help='Ending number for zoom in. Use if zoom option is set to yes. Default is 10'),
+    make_option(c('-q', '--secondmutationfile'), action='store', type='character', default='no', help='Option to enter a second mutation file. Default is no'),
+    make_option(c('-u', '--secondmutationfilename'), action='store', type='character', default='test2.txt', help='Name of second mutation plot file'),
+    make_option(c('-y', '--secondmutationsetname'), action='store', type='character', default='Test2', help='Name of second mutation dataset. Default is Test2')
+)
+opt <- parse_args(OptionParser(option_list = option_list))
 
-#Arguments:
-argv <- function(x){
-    args <- commandArgs()
-    return(args[x])
-}
-
-mutationFile <- argv(4) #This is the mutation file
-proteinArchitectureFile <- argv(5) #This is the protein architecture file
-postTranslationalModificationFile <- argv(6) #This is the post-translation modification file
-alignmentFile <- argv(7) #Multiple sequence alignment file
-referenceSequencePositionInFile <- argv(8) #This is just the sequence number of your reference in the aligned fasta; for example if human is your reference and its the 5th sequence in the aligned file just say 5
-nameOfYourQuery <- argv(9) #Here you can put whatever name you want to show up in the plot
-tickSize <- as.numeric(argv(10)) #This is the size of the x-axis tick spacing
-additionalOptions <- argv(11) #This requires a yes/no answer, if yes the additional arguments have to be added (see usage), if no, this is the last required argument
+mutationFile <- opt$mutations
+proteinArchitectureFile <- opt$architecture
+postTranslationalModificationFile <- opt$posttranslational
+alignmentFile <- opt$fastaalignmentfile
+referenceSequencePositionInFile <- opt$referencesequenceposition
+nameOfYourQuery <- opt$name
+tickSize <- opt$ticksize
+additionalOptions <- opt$advancedoptions
 
 if(additionalOptions == "yes"){
-	showLabels <- argv(12) #show labels above the mutations
-	showConservationScore <- argv(13) #show the actual conservation score 
-	showReferenceSequence <- argv(14) #show the sequence of the user-specified reference
-	showGridlinesAtTicks <- argv(15) #show full gridlines at each tick mark
-	zoomIn <- argv(16) #zoom in to a specific place in the plot (yes/no)
-	zoomStart <- argv(17) #zoom start, if zoomIn was no, any value can be added here
-	zoomEnd <- argv(18) #zoom end, if zoomIn was no, any value can be added here
-	wantSecondMutationFileForPlot <- argv(19) #option to plot a second mutation file
-	if(wantSecondMutationFileForPlot == "yes"){ #if you chose yes for plotting a second mutation file the following arguments must be answered
-		secondMutationFileForPlot <- argv(20) #file name for the second mutation file
-		nameOfYourSecondQuery <- argv(21) #name you want for the second mutation set
+	showLabels <- opt$showlabels
+	showConservationScore <- opt$showconservationscore
+	showReferenceSequence <- opt$showreferencesequence
+	showGridlinesAtTicks <- opt$showgridlines
+	zoomIn <- opt$zoom
+	zoomStart <- opt$zoomstart
+	zoomEnd <- opt$zoomend
+	wantSecondMutationFileForPlot <- opt$secondmutationfile
+	if(wantSecondMutationFileForPlot == "yes"){
+		secondMutationFileForPlot <- opt$secondmutationfilename
+		nameOfYourSecondQuery <- opt$secondmutationsetname
 		}
 	}
 
