@@ -34,8 +34,12 @@ Required files:
 
 Basic Usage:
 ==================================================
+```
 Rscript plotProteinWithConservation.R -m psen1_mutation_file.txt -a psen1_architecture_file.txt -p psen1_post_translation_file.txt -f muscle-I20130227-165316-0600-58424624-pg.fasta -r 4
+```
 
 Advanced usage:
 ==================================================
+```
 Rscript plotProteinWithConservation.R -m psen1_mutation_file.txt -a psen1_architecture_file.txt -p psen1_post_translation_file.txt -f muscle-I20130227-165316-0600-58424624-pg.fasta -r 4 -n Disease -t 25 -v yes -s yes -d yes -e yes -j yes -z yes -b 50 -c 100 -q yes -u psen1_mutation_file.txt -y Disease2
+```
